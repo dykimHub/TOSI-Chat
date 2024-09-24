@@ -36,15 +36,25 @@ public class ChatServiceImpl implements ChatService {
      * @return 사용자와 시스템 간의 채팅 메시지를 담은 MultiChatMessage 객체 리스트
      */
     @Override
-    public List<MultiChatMessage> initChat(ChatInitInfoDto chatInitInfoDto) {
+    public List<MultiChatMessage> sendInitChat(ChatInitInfoDto chatInitInfoDto) {
         // 채팅 메시지 리스트 생성
-        List<MultiChatMessage> multiChatMessages = new ArrayList<>();
+        List<MultiChatMessage> multiChatMessagesList = new ArrayList<>();
 
         // 프롬프트 생성 및 사용자 메시지 추가
         String prompt = this.makeChatInitRequestDto(chatInitInfoDto);
-        multiChatMessages.add(new MultiChatMessage("user", prompt));
+        multiChatMessagesList.add(new MultiChatMessage("user", prompt));
 
-        return multiChatMessages;
+        // 채팅 메시지 리스트를 기반으로 OpenAI API 요청 객체 생성
+        MultiChatRequest multiChatRequest = this.makeMultiChatRequest(multiChatMessagesList);
+
+        // OpenAI API 응답 처리 및 시스템 메시지 추가
+        MultiChatResponse multiChatResponse = this.getResponse(
+                this.buildHttpEntity(multiChatRequest),
+                openAIProperties.getApiURL()
+        );
+        multiChatMessagesList.add(new MultiChatMessage("system", multiChatResponse.getChoices().get(0).getMessage().getContent()));
+
+        return multiChatMessagesList;
     }
 
     /**
@@ -65,7 +75,45 @@ public class ChatServiceImpl implements ChatService {
                 .getPrompt();
     }
 
+    /**
+     * OpenAI API 설정 정보, 채팅 메시지 리스트를 담은 MultiChatRequest 객체를 생성합니다.
+     *
+     * @param multiChatMessages 사용자와 시스템 간의 채팅 메시지 리스트
+     * @return OpenAI API 요청을 위한 MultiChatRequest 객체
+     */
+    private MultiChatRequest makeMultiChatRequest(List<MultiChatMessage> multiChatMessages) {
+        return new MultiChatRequest(
+                openAIProperties.getModel(),
+                multiChatMessages,
+                openAIProperties.getMaxTokens(),
+                openAIProperties.getTemperature(),
+                openAIProperties.getTopP()
+        );
+    }
 
+    /**
+     * MultiChatRequest 객체와 헤더를 포함한 HttpEntity 객체를 생성합니다.
+     *
+     * @param multiChatRequest OpenAI API 설정 정보, 채팅 메시지 리스트를 담은 MultiChatRequest 객체
+     * @return OpenAI API에 보낼 HttpEntity 객체
+     */
+    private HttpEntity<?> buildHttpEntity(MultiChatRequest multiChatRequest) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
+        headers.add("Authorization", "Bearer " + openAIProperties.getApiKey());
+        return new HttpEntity<>(multiChatRequest, headers);
+    }
+
+    /**
+     * OpenAI API에 요청을 보내고 응답을 반환합니다.
+     *
+     * @param httpEntity Http 요청 객체
+     * @param url OpenAI API URL
+     * @return OpenAI API에서 받은 응답을 파싱하여 만든 MultiChatResponse 객체
+     */
+    private MultiChatResponse getResponse(HttpEntity<?> httpEntity, String url) {
+        return restTemplate.postForEntity(url, httpEntity, MultiChatResponse.class).getBody();
+    }
 
 
 }

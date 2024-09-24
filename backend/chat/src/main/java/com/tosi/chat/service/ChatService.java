@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ChatService {
 
-    List<MultiChatMessage> initChat(ChatInitInfoDto chatInitInfoDto);
+    List<MultiChatMessage> sendInitChat(ChatInitInfoDto chatInitInfoDto);
 
 }
