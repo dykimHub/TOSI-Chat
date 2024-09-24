@@ -36,5 +36,11 @@ public class ChatController {
                 .body(multiChatMessageList);
     }
 
-
+    @Operation(summary = "7번의 질문이 끝나고 마지막 인사로 응답")
+    @PostMapping("/final")
+    public ResponseEntity<List<MultiChatMessage>> sendFinalChat(@RequestBody ChatRequestDto chatRequestDto) {
+        List<MultiChatMessage> multiChatMessageList = chatService.sendFinalChat(chatRequestDto);
+        return ResponseEntity.ok()
+                .body(multiChatMessageList);
+    }
 }

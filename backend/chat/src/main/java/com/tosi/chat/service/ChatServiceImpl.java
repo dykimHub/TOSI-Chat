@@ -1,10 +1,7 @@
 package com.tosi.chat.service;
 
 import com.tosi.chat.common.config.OpenAIProperties;
-import com.tosi.chat.dto.ChatInitInfoDto;
-import com.tosi.chat.dto.ChatInitRequestDto;
-import com.tosi.chat.dto.ChatRequestDto;
-import com.tosi.chat.dto.TaleDetailDto;
+import com.tosi.chat.dto.*;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatMessage;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatRequest;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatResponse;
@@ -42,8 +39,8 @@ public class ChatServiceImpl implements ChatService {
         List<MultiChatMessage> multiChatMessagesList = new ArrayList<>();
 
         // 프롬프트 생성 및 사용자 메시지 추가
-        String prompt = this.makeChatInitRequestDto(chatInitInfoDto);
-        multiChatMessagesList.add(new MultiChatMessage("user", prompt));
+        String initPrompt = this.makeChatInitRequestDto(chatInitInfoDto);
+        multiChatMessagesList.add(new MultiChatMessage("user", initPrompt));
 
         // 채팅 메시지 리스트를 기반으로 OpenAI API 요청 객체 생성
         MultiChatRequest multiChatRequest = this.makeMultiChatRequest(multiChatMessagesList);
@@ -78,7 +75,26 @@ public class ChatServiceImpl implements ChatService {
         return updatedMultiChatMessageList;
     }
 
+    /**
+     * 채팅 메시지 리스트에 기존 채팅 메시지와 사용자가 보낸 새로운 메시지, 마지막 인사 프롬프트를 추가하고 OpenAI API에 메시지를 요청합니다.
+     * 응답 메시지를 받아 사용자와 시스템 간의 새로운 메시지 리스트를 반환합니다.
+     *
+     * @param chatRequestDto 이전 채팅 메시지 리스트와 사용자가 보낸 새로운 메시지가 담긴 ChatRequestDto 객체
+     * @return 사용자가 보낸 메시지와 OpenAI 응답 메시지를 포함한 MultiChatMessage 객체 리스트
+     */
+    @Override
+    public List<MultiChatMessage> sendFinalChat(ChatRequestDto chatRequestDto) {
+        List<MultiChatMessage> updatedMultiChatMessageList = new ArrayList<>(chatRequestDto.getPreMultiChatMessageList());
 
+        String finalPrompt = chatRequestDto.getMultiChatMessage() + ChatFinalRequestDto.finalPrompt;
+        updatedMultiChatMessageList.add(new MultiChatMessage("user", finalPrompt));
+        MultiChatRequest multiChatRequest = this.makeMultiChatRequest(updatedMultiChatMessageList);
+
+        MultiChatResponse multiChatResponse = this.getResponse(this.buildHttpEntity(multiChatRequest));
+        updatedMultiChatMessageList.add(new MultiChatMessage("system", multiChatResponse.getChoices().get(0).getMessage().getContent()));
+
+        return updatedMultiChatMessageList;
+    }
 
     /**
      * Tale 서비스에 동화 정보를 요청하고, 채팅에 사용할 프롬프트를 생성합니다.
@@ -95,7 +111,7 @@ public class ChatServiceImpl implements ChatService {
                 .taleTitle(taleDetailDto.getTitle())
                 .taleContent(taleDetailDto.getContent())
                 .build()
-                .getPrompt();
+                .getInitPrompt();
     }
 
     /**

@@ -11,5 +11,6 @@ public interface ChatService {
     List<MultiChatMessage> sendInitChat(ChatInitInfoDto chatInitInfoDto);
 
     List<MultiChatMessage> sendChat(ChatRequestDto chatRequestDto);
-    
+
+    List<MultiChatMessage> sendFinalChat(ChatRequestDto chatRequestDto);
 }
