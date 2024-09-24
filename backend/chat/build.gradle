@@ -43,6 +43,9 @@ dependencies {
 	//swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
+	// chatgpt involved
+	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.5'
+
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testCompileOnly 'org.projectlombok:lombok'
