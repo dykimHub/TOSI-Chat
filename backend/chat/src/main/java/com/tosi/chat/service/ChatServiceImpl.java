@@ -111,7 +111,7 @@ public class ChatServiceImpl implements ChatService {
                         MultiChatResponse.class)
                 .getBody();
         multiChatMessageList.add(new MultiChatMessage(ROLE_SYSTEM, multiChatResponse.getChoices().get(0).getMessage().getContent()));
-        
+
         return multiChatMessageList;
     }
 

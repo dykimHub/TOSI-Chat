@@ -17,7 +17,7 @@ public class OpenAIProperties {
     @Value("${openai.model}")
     private String model; // OpenAI 모델 버전
     @Value("${openai.maxTokens}")
-    private Integer maxTokens; // 한 요청 당 보낼 수 있는 최대 토큰 수
+    private Integer maxTokens; // 한 번의 요청에서 입력과 출력에 사용할 최대 토큰 수
     @Value("${openai.temperature}")
     private Double temperature; // 랜덤성 조절; 1에 가까울수록 창의적인 답변, 0에 가까울수록 일관적인 답변
     @Value("${openai.topP}")

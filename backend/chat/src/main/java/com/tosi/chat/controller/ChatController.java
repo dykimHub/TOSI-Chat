@@ -7,10 +7,7 @@ import io.github.flashvayne.chatgpt.dto.chat.MultiChatMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +19,7 @@ public class ChatController {
 
     @Operation(summary = "사용자가 선택한 등장인물과 채팅 시작")
     @PostMapping("/init")
-    public ResponseEntity<List<MultiChatMessage>> sendInitChat(@RequestBody ChatInitInfoDto chatInitInfoDto) {
+    public ResponseEntity<List<MultiChatMessage>> sendInitChat(@RequestHeader("Authorization") String accessToken, @RequestBody ChatInitInfoDto chatInitInfoDto) {
         List<MultiChatMessage> multiChatMessageList = chatService.sendInitChat(chatInitInfoDto);
         return ResponseEntity.ok()
                 .body(multiChatMessageList);

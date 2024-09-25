@@ -6,11 +6,11 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatInitRequestDto {
-    private String prompt;
+    private String initPrompt;
 
     @Builder
     public ChatInitRequestDto(String childName, String characterName, String taleTitle, String taleContent) {
-        this.prompt = """
+        this.initPrompt = """
                 1. 너는 동화 속 캐릭터가 되어 대화할 거야. 캐릭터가 현실에 존재하는 친구인 것처럼 자연스럽게 대답해줘.
                 2. 2줄 이내로 대답해줘.
                 3. 대답은 10세 이하 어린이가 이해할 수 있도록, 자연스럽고 쉬운 한국어로 말해줘.
