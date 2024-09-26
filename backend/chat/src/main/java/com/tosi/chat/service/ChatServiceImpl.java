@@ -8,9 +8,7 @@ import io.github.flashvayne.chatgpt.dto.chat.MultiChatResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,16 +25,26 @@ public class ChatServiceImpl implements ChatService {
     private final RestTemplate restTemplate;
     @Value("${service.tale.url}")
     private String taleURL;
+    @Value("${service.user.url}")
+    private String userURL;
 
     /**
      * 동화 제목, 동화 내용, 사용자, 선택한 등장인물 정보로 채팅을 시작합니다.
      * OpenAI API에 요청한 메시지와 응답받은 메시지를 담은 리스트를 반환합니다.
      *
+     * @param accessToken 로그인한 사용자의 토큰
      * @param chatInitInfoDto 채팅을 시작할 때 필요한 학습 정보가 담긴 ChatInitInfoDto 객체
      * @return 사용자와 시스템 간의 채팅 메시지를 담은 MultiChatMessage 객체 리스트
      */
     @Override
-    public List<MultiChatMessage> sendInitChat(ChatInitInfoDto chatInitInfoDto) {
+    public List<MultiChatMessage> sendInitChat(String accessToken, ChatInitInfoDto chatInitInfoDto) {
+        // 사용자 인증
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", accessToken);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+        Long userId = restTemplate.exchange(userURL + "auth",
+                HttpMethod.GET, httpEntity, Long.class).getBody();
+
         List<MultiChatMessage> multiChatMessageList = new ArrayList<>();
         // 프롬프트 생성 및 사용자 메시지 추가
         String initPrompt = this.makeChatInitRequestDto(chatInitInfoDto).getInitPrompt();
