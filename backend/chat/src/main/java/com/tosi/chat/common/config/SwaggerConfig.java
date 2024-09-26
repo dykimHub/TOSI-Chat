@@ -25,7 +25,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("회원 API")
+                        .title("채팅 API")
                         .version("1.0.0"))
                 .addSecurityItem(securityRequirement)
                 .components(new io.swagger.v3.oas.models.Components()
