@@ -20,7 +20,8 @@ public class ChatController {
     @Operation(summary = "사용자가 선택한 등장인물과 채팅 시작")
     @PostMapping("/init")
     public ResponseEntity<List<MultiChatMessage>> sendInitChat(@RequestHeader("Authorization") String accessToken, @RequestBody ChatInitInfoDto chatInitInfoDto) {
-        List<MultiChatMessage> multiChatMessageList = chatService.sendInitChat(accessToken, chatInitInfoDto);
+        Long userId = chatService.findUserAuthorization(accessToken);
+        List<MultiChatMessage> multiChatMessageList = chatService.sendInitChat(chatInitInfoDto);
         return ResponseEntity.ok()
                 .body(multiChatMessageList);
     }
