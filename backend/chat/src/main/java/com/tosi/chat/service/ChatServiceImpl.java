@@ -1,6 +1,8 @@
 package com.tosi.chat.service;
 
-import com.tosi.chat.common.config.OpenAIProperties;
+import com.tosi.chat.common.config.ChatGptProperties;
+import com.tosi.chat.common.exception.CustomException;
+import com.tosi.chat.common.exception.ExceptionCode;
 import com.tosi.chat.dto.*;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatMessage;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatRequest;
@@ -8,7 +10,10 @@ import io.github.flashvayne.chatgpt.dto.chat.MultiChatResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,8 +26,10 @@ import java.util.List;
 public class ChatServiceImpl implements ChatService {
     private static final String ROLE_USER = "user";
     private static final String ROLE_SYSTEM = "system";
-    private final OpenAIProperties openAIProperties;
+    private final ChatGptProperties chatGptProperties;
     private final RestTemplate restTemplate;
+    @Value("${openai.api-key}")
+    private String apiKey;
     @Value("${service.tale.url}")
     private String taleURL;
     @Value("${service.user.url}")
@@ -32,19 +39,11 @@ public class ChatServiceImpl implements ChatService {
      * 동화 제목, 동화 내용, 사용자, 선택한 등장인물 정보로 채팅을 시작합니다.
      * OpenAI API에 요청한 메시지와 응답받은 메시지를 담은 리스트를 반환합니다.
      *
-     * @param accessToken 로그인한 사용자의 토큰
      * @param chatInitInfoDto 채팅을 시작할 때 필요한 학습 정보가 담긴 ChatInitInfoDto 객체
      * @return 사용자와 시스템 간의 채팅 메시지를 담은 MultiChatMessage 객체 리스트
      */
     @Override
-    public List<MultiChatMessage> sendInitChat(String accessToken, ChatInitInfoDto chatInitInfoDto) {
-        // 사용자 인증
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", accessToken);
-        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-        Long userId = restTemplate.exchange(userURL + "auth",
-                HttpMethod.GET, httpEntity, Long.class).getBody();
-
+    public List<MultiChatMessage> sendInitChat(ChatInitInfoDto chatInitInfoDto) {
         List<MultiChatMessage> multiChatMessageList = new ArrayList<>();
         // 프롬프트 생성 및 사용자 메시지 추가
         String initPrompt = this.makeChatInitRequestDto(chatInitInfoDto).getInitPrompt();
@@ -114,7 +113,7 @@ public class ChatServiceImpl implements ChatService {
 
         // OpenAI API에 요청 보내고 받은 응답을 추가
         MultiChatResponse multiChatResponse = restTemplate.postForEntity(
-                        openAIProperties.getApiURL(),
+                        chatGptProperties.getApiURL(),
                         buildHttpEntity(multiChatRequest),
                         MultiChatResponse.class)
                 .getBody();
@@ -132,11 +131,11 @@ public class ChatServiceImpl implements ChatService {
      */
     private MultiChatRequest makeMultiChatRequest(List<MultiChatMessage> multiChatMessageList) {
         return new MultiChatRequest(
-                openAIProperties.getModel(),
+                chatGptProperties.getModel(),
                 multiChatMessageList,
-                openAIProperties.getMaxTokens(),
-                openAIProperties.getTemperature(),
-                openAIProperties.getTopP()
+                chatGptProperties.getMaxTokens(),
+                chatGptProperties.getTemperature(),
+                chatGptProperties.getTopP()
         );
     }
 
@@ -149,8 +148,29 @@ public class ChatServiceImpl implements ChatService {
     private HttpEntity<?> buildHttpEntity(MultiChatRequest multiChatRequest) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
-        headers.add("Authorization", "Bearer " + openAIProperties.getApiKey());
+        headers.add("Authorization", "Bearer " + apiKey);
         return new HttpEntity<>(multiChatRequest, headers);
+    }
+
+    /**
+     * 회원 서비스로 토큰을 보내고 인증이 완료되면 회원 번호를 반환합니다.
+     *
+     * @param accessToken 로그인한 회원의 토큰
+     * @return 회원 번호
+     * @throws CustomException 인증에 성공하지 못하면 예외 처리
+     */
+    @Override
+    public Long findUserAuthorization(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", accessToken);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+        try {
+            Long userId = restTemplate.exchange(userURL + "auth",
+                    HttpMethod.GET, httpEntity, Long.class).getBody();
+            return userId;
+        } catch (Exception e) {
+            throw new CustomException(ExceptionCode.INVALID_TOKEN);
+        }
     }
 
 
