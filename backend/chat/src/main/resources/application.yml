@@ -36,8 +36,3 @@ service:
     url: ${USER_URL}
 openai:
   api-key: ${API_KEY}
-  url: https://api.openai.com/v1/chat/completions
-  model: gpt-4o-mini
-  maxTokens: 1000
-  temperature: 1.0
-  topP: 1.0
