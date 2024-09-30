@@ -39,14 +39,14 @@ public class ChatServiceImpl implements ChatService {
      * 동화 제목, 동화 내용, 사용자, 선택한 등장인물 정보로 채팅을 시작합니다.
      * OpenAI API에 요청한 메시지와 응답받은 메시지를 담은 리스트를 반환합니다.
      *
-     * @param chatInitInfoDto 채팅을 시작할 때 필요한 학습 정보가 담긴 ChatInitInfoDto 객체
+     * @param chatInitRequestDto 채팅을 시작할 때 필요한 학습 정보가 담긴 ChatInitInfoDto 객체
      * @return 사용자와 시스템 간의 채팅 메시지를 담은 MultiChatMessage 객체 리스트
      */
     @Override
-    public List<MultiChatMessage> sendInitChat(ChatInitInfoDto chatInitInfoDto) {
+    public List<MultiChatMessage> sendInitChat(ChatInitRequestDto chatInitRequestDto) {
         List<MultiChatMessage> multiChatMessageList = new ArrayList<>();
         // 프롬프트 생성 및 사용자 메시지 추가
-        String initPrompt = this.makeChatInitRequestDto(chatInitInfoDto).getInitPrompt();
+        String initPrompt = this.makeChatInitPrompt(chatInitRequestDto);
         multiChatMessageList.add(new MultiChatMessage(ROLE_SYSTEM, initPrompt));
         return processChatRequest(multiChatMessageList);
     }
@@ -86,18 +86,12 @@ public class ChatServiceImpl implements ChatService {
     /**
      * Tale 서비스에 동화 정보를 요청하고, 채팅에 사용할 프롬프트를 생성합니다.
      *
-     * @param chatInitInfoDto 채팅을 시작할 때 필요한 학습 정보가 담긴 ChatInitInfoDto 객체
-     * @return ChatInitInfoDto를 기반으로 생성된 프롬프트 문자열
+     * @param chatInitRequestDto 사용자, 동화 정보가 담긴 ChatInitRequest 객체
+     * @return 채팅 시작용 프롬프트
      */
-    private ChatInitRequestDto makeChatInitRequestDto(ChatInitInfoDto chatInitInfoDto) {
-        TaleDetailDto taleDetailDto = restTemplate.getForObject(taleURL + "content/" + chatInitInfoDto.getTaleId(), TaleDetailDto.class);
-
-        return ChatInitRequestDto.builder()
-                .childName(chatInitInfoDto.getChildName())
-                .characterName(chatInitInfoDto.getCharacterName())
-                .taleTitle(taleDetailDto.getTitle())
-                .taleContent(taleDetailDto.getContent())
-                .build();
+    private String makeChatInitPrompt(ChatInitRequestDto chatInitRequestDto) {
+        TaleDetailDto taleDetailDto = restTemplate.getForObject(taleURL + "content/" + chatInitRequestDto.getTaleId(), TaleDetailDto.class);
+        return chatInitRequestDto.getChatInitRequestDto(taleDetailDto.getTitle(), taleDetailDto.getContent());
     }
 
     /**

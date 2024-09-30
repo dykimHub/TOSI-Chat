@@ -1,6 +1,6 @@
 package com.tosi.chat.controller;
 
-import com.tosi.chat.dto.ChatInitInfoDto;
+import com.tosi.chat.dto.ChatInitRequestDto;
 import com.tosi.chat.dto.ChatRequestDto;
 import com.tosi.chat.service.ChatService;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatMessage;
@@ -19,9 +19,9 @@ public class ChatController {
 
     @Operation(summary = "사용자가 선택한 등장인물과 채팅 시작")
     @PostMapping("/init")
-    public ResponseEntity<List<MultiChatMessage>> sendInitChat(@RequestHeader("Authorization") String accessToken, @RequestBody ChatInitInfoDto chatInitInfoDto) {
+    public ResponseEntity<List<MultiChatMessage>> sendInitChat(@RequestHeader("Authorization") String accessToken, @RequestBody ChatInitRequestDto chatInitRequestDto) {
         Long userId = chatService.findUserAuthorization(accessToken);
-        List<MultiChatMessage> multiChatMessageList = chatService.sendInitChat(chatInitInfoDto);
+        List<MultiChatMessage> multiChatMessageList = chatService.sendInitChat(chatInitRequestDto);
         return ResponseEntity.ok()
                 .body(multiChatMessageList);
     }
