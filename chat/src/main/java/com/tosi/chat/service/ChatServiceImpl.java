@@ -90,7 +90,7 @@ public class ChatServiceImpl implements ChatService {
      * @return 채팅 시작용 프롬프트
      */
     private String makeChatInitPrompt(ChatInitRequestDto chatInitRequestDto) {
-        TaleDetailDto taleDetailDto = restTemplate.getForObject(taleURL + "content/" + chatInitRequestDto.getTaleId(), TaleDetailDto.class);
+        TaleDetailDto taleDetailDto = restTemplate.getForObject(taleURL + "/content/" + chatInitRequestDto.getTaleId(), TaleDetailDto.class);
         return chatInitRequestDto.getChatInitRequestDto(taleDetailDto.getTitle(), taleDetailDto.getContent());
     }
 
@@ -159,7 +159,7 @@ public class ChatServiceImpl implements ChatService {
         headers.set("Authorization", accessToken);
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
         try {
-            Long userId = restTemplate.exchange(userURL + "auth",
+            Long userId = restTemplate.exchange(userURL + "/auth",
                     HttpMethod.GET, httpEntity, Long.class).getBody();
             return userId;
         } catch (Exception e) {

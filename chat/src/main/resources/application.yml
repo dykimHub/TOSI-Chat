@@ -27,8 +27,6 @@ spring:
       multipart:
         max-file-size: 1GB
         max-request-size: 1GB
-server:
-  port: 8082
 service:
   tale:
     url: ${TALE_URL}
