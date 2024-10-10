@@ -38,6 +38,8 @@ spec:
               subPath: my.cnf
             - name: chat-db-config # configmap에 정의해둔 init.sql 실행
               mountPath: /docker-entrypoint-initdb.d
+            - name: chat-vol
+              mountPath: /var/lib/mysql
           envFrom:
             - secretRef: # mysql 인증정보
                 name: tosi-db-scrt
@@ -49,3 +51,6 @@ spec:
         - name: chat-db-config
           configMap:
             name: chat-db-config
+        - name: chat-vol
+          persistentVolumeClaim:
+            claimName: chat-pvc
