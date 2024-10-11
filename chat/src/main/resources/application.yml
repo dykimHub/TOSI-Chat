@@ -27,6 +27,10 @@ spring:
       multipart:
         max-file-size: 1GB
         max-request-size: 1GB
+  data:
+    redis:
+      port: 6379
+      host: localhost
 service:
   tale:
     url: ${TALE_URL}
