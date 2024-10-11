@@ -4,13 +4,17 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.util.List;
 
+@RedisHash("TaleDetailDto")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TaleDetailDto {
 
+    @Id // Redis 고유 식별자
     private long taleId;
     private String title;
     private String content;

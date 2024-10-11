@@ -4,6 +4,7 @@ import com.tosi.chat.common.config.ChatGptProperties;
 import com.tosi.chat.common.exception.CustomException;
 import com.tosi.chat.common.exception.ExceptionCode;
 import com.tosi.chat.dto.*;
+import com.tosi.chat.repository.TaleDetailDtoRedisRepository;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatMessage;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatRequest;
 import io.github.flashvayne.chatgpt.dto.chat.MultiChatResponse;
@@ -26,8 +27,10 @@ import java.util.List;
 public class ChatServiceImpl implements ChatService {
     private static final String ROLE_USER = "user";
     private static final String ROLE_SYSTEM = "system";
+    private static final String TALE_CACHE_PREFIX = "taleCache::";
     private final ChatGptProperties chatGptProperties;
     private final RestTemplate restTemplate;
+    private final TaleDetailDtoRedisRepository taleDetailDtoRedisRepository;
     @Value("${openai.api-key}")
     private String apiKey;
     @Value("${service.tale.url}")
@@ -84,13 +87,17 @@ public class ChatServiceImpl implements ChatService {
     }
 
     /**
-     * Tale 서비스에 동화 정보를 요청하고, 채팅에 사용할 프롬프트를 생성합니다.
+     * Redis에서 동화 정보 캐시를 먼저 확인하고, 없으면 Tale 서비스에서 동화 정보를 가져옵니다.
+     * 가져온 동화 정보를 바탕으로 채팅에 사용할 초기 프롬프트를 생성합니다.
      *
      * @param chatInitRequestDto 사용자, 동화 정보가 담긴 ChatInitRequest 객체
      * @return 채팅 시작용 프롬프트
      */
     private String makeChatInitPrompt(ChatInitRequestDto chatInitRequestDto) {
-        TaleDetailDto taleDetailDto = restTemplate.getForObject(taleURL + "/content/" + chatInitRequestDto.getTaleId(), TaleDetailDto.class);
+        Long taleId = chatInitRequestDto.getTaleId();
+        TaleDetailDto taleDetailDto = taleDetailDtoRedisRepository.findById(TALE_CACHE_PREFIX + taleId)
+                .orElse(restTemplate.getForObject(taleURL + "/content/" + taleId, TaleDetailDto.class));
+
         return chatInitRequestDto.getChatInitRequestDto(taleDetailDto.getTitle(), taleDetailDto.getContent());
     }
 
