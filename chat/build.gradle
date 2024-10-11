@@ -43,6 +43,9 @@ dependencies {
 	// chatgpt involved
 	implementation 'io.github.flashvayne:chatgpt-spring-boot-starter:1.0.5'
 
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testCompileOnly 'org.projectlombok:lombok'
