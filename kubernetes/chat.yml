@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tosi-chat-svc
+spec:
+  selector:
+    app: tosi-chat
+    tier: backend
+  ports:
+    - port: 80 # 80으로 연결하면 http 기본 포트이기 때문에 포트 명시 필요없음
+      targetPort: 8080 # pod 달라서 다른 서비스와 포트번호 동일해도 됨
+  type: ClusterIP # ingress가 외부 명령을 받아서 전달
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tosi-chat-dep
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tosi-chat
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: tosi-chat
+        tier: backend
+    spec:
+      containers:
+        - name: tosi-be-chat
+          image: dyckerkim/tosi-be-chat:latest # 재시작하면 최신 이미지 pull
+          envFrom:
+            - secretRef: # mysql, openai 인증
+                name: tosi-chat-scrt
+          env:
+            - name: MYSQL_URL
+              value: tosi-db-chat-svc.default
+            - name: REDIS_URL
+              value: tosi-cc-svc.default
+            - name: USER_URL
+              value: http://tosi-user-svc.default/api/users
+            - name: TALE_URL
+              value: http://tosi-tale-svc.default/api/tales
