@@ -1,4 +1,4 @@
-name: CUSTOM-TALE CI
+name: CHAT CI
 
 # develop 브랜치에 push 되면
 on:
@@ -37,4 +37,4 @@ jobs:
           MYSQL_URL: 127.0.0.1
           REDIS_URL: localhost
           TALE_URL: http://localhost:8080/api/tales
-          USER_URL: http://localhost:8080/api/users
+          USER_URL: http://localhost:8081/api/users
