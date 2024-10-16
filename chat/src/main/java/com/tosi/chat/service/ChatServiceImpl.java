@@ -27,7 +27,7 @@ import java.util.List;
 public class ChatServiceImpl implements ChatService {
     private static final String ROLE_USER = "user";
     private static final String ROLE_SYSTEM = "system";
-    private static final String TALE_CACHE_PREFIX = "taleCache::";
+    private static final String TALE_CACHE_PREFIX = "taleDetailCache::";
     private final ChatGptProperties chatGptProperties;
     private final RestTemplate restTemplate;
     private final TaleDetailDtoRedisRepository taleDetailDtoRedisRepository;
