@@ -34,7 +34,7 @@ public class ChatController {
                 .body(multiChatMessageList);
     }
 
-    @Operation(summary = "사용자가 선택한 등장인물과 이어서 채팅하기")
+    @Operation(summary = "이전 채팅을 바탕으로 채팅 시작")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(
             content = @Content(
                     examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
