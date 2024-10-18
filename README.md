@@ -11,6 +11,12 @@
 채팅 프롬프트를 테스트하면서 더 알맞은 답변을 생성하도록 바꾸었습니다.  
 쿠버네티스를 도입하여 오케스트레이션을 개선하였습니다.
 
+## :pushpin: 서비스 아키텍처
+
+<img src="./assets/tosi_msa_sa.drawio.png" alt="System Architecture" width="700"/>
+
+Pod 배치는 예시 입니다. 각 Pod은 리소스 사용량에 따라 자동으로 적절한 노드에 배치됩니다.
+
 ## :computer: 기술 스택
 
 ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ%20IDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white)
@@ -30,7 +36,7 @@
 
 ## 📖 API 문서
 
-프로젝트의 API는 **Swagger UI**를 통해 쉽게 확인하고 테스트할 수 있습니다.
+채팅 서비스의 API는 **Swagger UI**를 통해 쉽게 확인하고 테스트할 수 있습니다.
 
 - **채팅 API 문서 주소**: 🔗 [https://www.tosi.world/swagger-ui/index.html?urls.primaryName=%EC%B1%84%ED%8C%85](https://www.tosi.world/swagger-ui/index.html?urls.primaryName=%EC%B1%84%ED%8C%85)
 
