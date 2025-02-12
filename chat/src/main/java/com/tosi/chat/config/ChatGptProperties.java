@@ -1,4 +1,4 @@
-package com.tosi.chat.common.config;
+package com.tosi.chat.config;
 
 
 import lombok.AccessLevel;
