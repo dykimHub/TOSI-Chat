@@ -1,32 +1,24 @@
 package com.tosi.common.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL) // TaleBaseDto에 포함된 변수 중 null값 제거하고 캐싱
 @RedisHash("TaleDto")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TaleCacheDto {
-
-    @Id // Redis 고유 식별자
-    private long taleId;
-    private String title;
+public class TaleCacheDto extends TaleBaseDto {
     private String thumbnailS3URL;
-    private int ttsLength;
 
-    /**
-     * TaleDto에서 S3 Key 변수를 제외해서 Redis에 저장될 객체 크기를 줄임
-     */
     @Builder
     public TaleCacheDto(long taleId, String title, String thumbnailS3URL, int ttsLength) {
-        this.taleId = taleId;
-        this.title = title;
+        super(taleId, title, null, null, null, ttsLength);
         this.thumbnailS3URL = thumbnailS3URL;
-        this.ttsLength = ttsLength;
     }
 
 }
