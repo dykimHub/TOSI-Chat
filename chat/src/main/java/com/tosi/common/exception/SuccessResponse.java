@@ -1,4 +1,4 @@
-package com.tosi.chat.common.exception;
+package com.tosi.common.exception;
 
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -40,4 +40,4 @@ openai:
   api-key: ${API_KEY}
 springdoc:
   api-docs:
-    path: /docs/chat/v3/api-docs
+    path: /docs/chat
