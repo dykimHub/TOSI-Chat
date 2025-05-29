@@ -1,4 +1,4 @@
-package com.tosi.chat.common.exception;
+package com.tosi.chat.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

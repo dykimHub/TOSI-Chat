@@ -1,5 +1,6 @@
-package com.tosi.chat.common.exception;
+package com.tosi.common.exception;
 
+import com.tosi.chat.exception.ExceptionCode;
 import lombok.Getter;
 
 @Getter
